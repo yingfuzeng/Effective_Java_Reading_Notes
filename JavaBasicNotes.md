@@ -33,14 +33,14 @@ Overloaded methods are differentiated by the number and the type of the argument
 
 You can use a construct called varargs to pass an arbitrary number of values to a method. 
 
-	```java
+```java
 	public Polygon polygonFrom(Point... corners) {
 	    int numberOfSides = corners.length;
 	    double squareOfSide1, lengthOfSide1;
 	    squareOfSide1 = (corners[1].x - corners[0].x)
 		...
-	
-	```
+```
+
 It works just like Arrays.
 
 **Class Constructors** 
@@ -51,15 +51,15 @@ As with methods, the Java platform differentiates constructors on the basis of t
 
 Primitive arguments, such as an int or a double, are passed into methods by value. This means that any changes to the values of the parameters exist only within the scope of the method. When the method returns, the parameters are gone and any changes to them are lost.
 
-	```java
+```java
 		public static void passMethod(int p) {
 	        p = 10;
 	    }             
         int x = 3;        
         passMethod(x);                 
-        System.out.println("After invoking passMethod, x = " + x);
-	
-	```
+        System.out.println("After invoking passMethod, x = " + x);	
+```
+
 The out put is `3`.
 
 Reference data type parameters, such as objects, are also passed into methods by value. This means that when the method returns, the passed-in reference still references the same object as before. However, the values of the object's fields can be changed in the method, if they have the proper access level.
