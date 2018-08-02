@@ -52,9 +52,9 @@ As with methods, the Java platform differentiates constructors on the basis of t
 Primitive arguments, such as an int or a double, are passed into methods by value. This means that any changes to the values of the parameters exist only within the scope of the method. When the method returns, the parameters are gone and any changes to them are lost.
 
 ```java
-		public static void passMethod(int p) {
+	public static void passMethod(int p) {
 	        p = 10;
-	    }             
+	}             
         int x = 3;        
         passMethod(x);                 
         System.out.println("After invoking passMethod, x = " + x);	
@@ -85,29 +85,136 @@ The Java runtime environment has a garbage collector that periodically frees the
 When a method uses a class name as its return type, the class of the type of the returned object must be either a **subclass** of, or the exact class of, the return type. It is also called *covariant
 return type*.  If the return type is an **interface name**, the object returned must implement the specific interface.
 
+**Using `this`**
+
+1. The most common reason for using the this keyword is because a field is shadowed by a method or constructor parameter.
+
+```java
+public class Point {
+    public int x = 0;
+    public int y = 0;       
+    //constructor
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+	}
+```
+
+2. Using `this` with a Constructor
 
 
+```java 
+ public class Rectangle {
+    private int x, y;
+    private int width, height;        
+    public Rectangle() {
+        this(0, 0, 1, 1);
+    }
+    public Rectangle(int width, int height) {
+        this(0, 0, width, height);
+    }
+    public Rectangle(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+    ...
+}
+```
+
+**Access levels**
+
+- At the top level—public, or package-private (no explicit modifier).
+- At the member level—public, private, protected, or package-private (no explicit modifier).
+If a class has no modifier (the default, also known as package-private), it is visible only within its own package (packages are named groups of related classes).   For members, there are two additional access modifiers: *private* and *protected*. The private modifier specifies that the member can only be accessed in its own class. The *protected* modifier specifies that the member can only be accessed within its own package (as with package-private) and, in addition, by a *subclass* of its class in another package.
+
+![Access level modifiers](/Users/yingfuzeng/Documents/JavaBook/Effective_Java_Reading_Notes/pics/accessLevel.png)
+
+Tips for choosing an access level:
+
+- Use the most restrictive access level that makes sense for a particular member. **Use private    unless you have a good reason not to**.
+- Avoid public fields except for constants.  Public fields tend to link you to a particular implementation and **limit your flexibility in changing your code**.
+
+**Class variables and `static`**
+
+When a number of objects are created from the same class blueprint, they each have their own distinct copies of instance variables. In the case of the Bicycle class, the instance variables are cadence, gear, and speed. Each Bicycle object has its own values for these variables, stored in different memory locations.  Sometimes, you want to have variables that are common to all objects. This is accomplished with the `static` modifier. Fields that have the static modifier in their declaration are called *static fields* or *class variables*.  They are associated with the class, rather than with any object.  Static fields or methods can be called without the need for creating an instance.
+
+`ClassName.methodName(args)`
+
+*Static Initialization Blocks*: To provide complex initialization for static fields (normal instance variables can use constructors), Java uses *Static Initialization Blocks*.  A static initialization block is a normal block of code enclosed in braces, { }, and preceded by the static keyword. Here is an example:
+
+```
+static {
+    // whatever code is needed for initialization goes here
+}
+```
+
+There is an alternative to static blocks — you can write a private static method.
 
 
+In **Scala**, the approach is different, since there is no *static* keywords.  What you do is define a companion object (Object with the same name as the Class), and put all "static" members 
+in it.  Also note, companion object and class can access each other's private members.
 
 
+**Nested Classes**
+
+A nested class is a member of its enclosing class. Non-static nested classes (inner classes) have access to other members of the enclosing class, even if they are declared private. Static nested classes do not have access to other members of the enclosing class. As a member of the OuterClass, a nested class can be declared *private*, *public*, *protected*, or package private.
+
+Compelling reasons for using nested classes include the following:
+
+- **It is a way of logically grouping classes that are only used in one place**: If a class is useful to only one other class, then it is logical to embed it in that class and keep the two together. Nesting such "helper classes" makes their package more streamlined.
+
+- **It increases encapsulation:** Consider two top-level classes, A and B, where B needs access to members of A that would otherwise be declared private. By hiding class B within class A, A's members can be declared private and B can access them. In addition, B itself can be hidden from the outside world.
+
+- **It can lead to more readable and maintainable code:** Nesting small classes within top-level classes places the code closer to where it is used.
 
 
+As with instance methods and variables, an **inner class** is associated with an instance of its enclosing class and has direct access to that object's methods and fields. Also, because an inner class is associated with an instance, it **cannot** define any static members itself.
+
+To instantiate an inner class, you must first instantiate the outer class. Then, create the inner object within the outer object with this syntax:
+
+`OuterClass.InnerClass innerObject = outerObject.new InnerClass();`
+
+There are two additional types of inner classes. You can declare an inner class within the body of a method. These classes are known as **local classes**. You can also declare an inner class within the body of a method without naming the class. These classes are known as **anonymous classes**.
+
+**Anonymous classes**:
+
+Anonymous classes enable you to make your code more concise. They enable you to declare and instantiate a class at the same time. They are like local classes except that they do not have a name. Use them if you need to use a local class only once.
+
+An anonymous class is** an expression**. The syntax of an anonymous class expression is like the invocation of a constructor, except that there is a class definition contained in a block of code.
+
+Consider the instantiation of the frenchGreeting object:
+
+```
+		HelloWorld frenchGreeting = new HelloWorld() {
+            String name = "tout le monde";
+            public void greet() {
+                greetSomeone("tout le monde");
+            }
+            public void greetSomeone(String someone) {
+                name = someone;
+                System.out.println("Salut " + name);
+            }
+        };
+```
+
+And another example:
+
+```
+		btn.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+                System.out.println("Hello World!");
+			}
+			});
+```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+###Lambda Expressions
+Java's way of passing function as values.  The previous section, Anonymous Classes, shows you how to implement a base class without giving it a name. Although this is often more concise than a named class, for classes with only one method, even an anonymous class seems a bit excessive and cumbersome. Lambda expressions let you express instances of single-method classes more compactly.
 
 
 
