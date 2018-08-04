@@ -202,7 +202,6 @@ Consider the instantiation of the frenchGreeting object:
 
 And another example:
 
-```
 		btn.setOnAction(new EventHandler<ActionEvent>() {
  
             @Override
@@ -210,11 +209,134 @@ And another example:
                 System.out.println("Hello World!");
 			}
 			});
-```
+
 
 
 ###Lambda Expressions
+
 Java's way of passing function as values.  The previous section, Anonymous Classes, shows you how to implement a base class without giving it a name. Although this is often more concise than a named class, for classes with only one method, even an anonymous class seems a bit excessive and cumbersome. Lambda expressions let you express instances of single-method classes more compactly.
+
+**Syntax of Lambda Expressions**:
+A lambda expression consists of the following:
+
+- A comma-separated list of formal parameters enclosed in parentheses. The CheckPerson.test method contains one parameter, p, which represents an instance of the Person class.  Note: You can omit the data type of the parameters in a lambda expression. In addition, you can omit the parentheses if there is only one parameter. For example, the following lambda expression is also valid
+- The arrow token, ->
+
+- A body, which consists of a single expression or a statement block.
+
+example:
+
+		public class Calculator {
+		    interface IntegerMath {
+		        int operation(int a, int b);   
+		    }
+  
+		    public int operateBinary(int a, int b, IntegerMath op) {
+		        return op.operation(a, b);
+		    } 
+		    public static void main(String... args) {ß
+		        Calculator myApp = new Calculator();
+		        IntegerMath addition = (a, b) -> a + b;
+		        IntegerMath subtraction = (a, b) -> a - b;
+		        System.out.println("40 + 2 = " +
+		            myApp.operateBinary(40, 2, addition));
+		        System.out.println("20 - 10 = " +
+		            myApp.operateBinary(20, 10, subtraction));    
+		    }
+		}
+
+
+**Functional interface**:  A functional interface is any interface that contains **only one** abstract method. (A functional interface may contain one or more default methods or static methods.) Because a functional interface contains only one abstract method, you can omit the name of that method when you implement it. The JDK defines several standard functional interfaces, which you can find in the package *java.util.function*.
+
+
+**Remember: to use a lambda expression, you need to implement a function interface!**
+
+For example, we have a list of *Person*, perform an action (return nothing) for all members that satisfy some certain criterias.  To do this, we can use two of the default functional interfaces, Predicate<T> and Consumer<T>. The Predicate interface contains a abstract method test: T -> boolean, and Consumer has accept: T -> void.
+	
+	public static void processPersons(
+	    List<Person> roster,
+	    Predicate<Person> tester,
+	    Consumer<Person> block) {
+	        for (Person p : roster) {
+	            if (tester.test(p)) {
+	                block.accept(p);
+	            }
+	        }
+	} 
+
+**Use Aggregate Operations That Accept Lambda Expressions as Parameters**
+
+The following example uses aggregate operations to print the e-mail addresses of those members contained in the collection roster who are eligible for Selective Service:
+
+	roster
+	    .stream()
+	    .filter(
+	        p -> p.getGender() == Person.Sex.MALE
+	            && p.getAge() >= 18
+	            && p.getAge() <= 25)
+	    .map(p -> p.getEmailAddress())
+	    .forEach(email -> System.out.println(email));
+
+
+The operations *filter*, *map*, and *forEach* are aggregate operations. Aggregate operations process elements from a stream, not directly from a collection (which is the reason why the first method invoked in this example is stream). A stream is a sequence of elements. Unlike a collection, it is not a data structure that stores elements. Instead, a stream carries values from a source, such as collection, through a pipeline. A pipeline is a sequence of stream operations, which in this example is filter- map-forEach. In addition, aggregate operations typically accept lambda expressions as parameters, enabling you to customize how they behave.
+
+
+**Method References**
+
+Use existing method in place of lambda expression.
+
+For example, Java's generic sort method has the following signature:
+
+`static <T> void sort(T[] a, Comparator<? super T> c)`
+	
+Notice that the interface Comparator is a functional interface. Therefore, you could use a lambda expression instead of defining and then creating a new instance of a class that implements Comparator:
+
+```Arrays.sort(rosterAsArray,
+    (Person a, Person b) -> {
+        return a.getBirthday().compareTo(b.getBirthday());
+    }
+);
+```
+
+
+However, this method to compare the birth dates of two Person instances already exists as Person.compareByAge. You can invoke this method instead in the body of the lambda expression:
+
+`Arrays.sort(rosterAsArray,
+    (a, b) -> Person.compareByAge(a, b)
+);`
+
+Because this lambda expression invokes an existing method, you can use a method reference instead of a lambda expression:
+
+`Arrays.sort(rosterAsArray, Person::compareByAge);`
+
+The method reference Person::compareByAge is semantically the same as the lambda expression (a, b) -> Person.compareByAge(a, b). One can also reference a constructor, syntax is ClassName::new.
+
+
+**Enum Types**
+
+An *enum type* is a special data type that enables for a variable to be a set of predefined constants. The variable must be equal to one of the values that have been predefined for it. Common examples include compass directions (values of NORTH, SOUTH, EAST, and WEST) and the days of the week.
+
+	public enum Day {
+	    SUNDAY, MONDAY, TUESDAY, WEDNESDAY,
+	    THURSDAY, FRIDAY, SATURDAY 
+	}
+
+You should use enum types **any time you need to represent a fixed set of constants**. That includes natural enum types such as the planets in our solar system and data sets where you know all possible values**at compile time**—for example, the choices on a menu, command line flags, and so on.
+
+**Note:** All enums automatically extends *java.lang.Enum*, so it can't extend anything else. Special
+methods are added to it, for example, *.values()* that returns an array containing all values.
+
+	for (Planet p : Planet.values()) {
+	    System.out.printf("Your weight on %s is %f%n",
+	                      p, p.surfaceWeight(mass));
+	}
+
+
+
+
+
+
+
 
 
 
