@@ -130,7 +130,7 @@ public class Point {
 - At the member level—public, private, protected, or package-private (no explicit modifier).
 If a class has no modifier (the default, also known as package-private), it is visible only within its own package (packages are named groups of related classes).   For members, there are two additional access modifiers: *private* and *protected*. The private modifier specifies that the member can only be accessed in its own class. The *protected* modifier specifies that the member can only be accessed within its own package (as with package-private) and, in addition, by a *subclass* of its class in another package.
 
-![Access level modifiers](/Users/yingfuzeng/Documents/JavaBook/Effective_Java_Reading_Notes/pics/accessLevel.png)
+![Access level modifiers](pics/accessLevel.png)
 
 Tips for choosing an access level:
 
@@ -330,6 +330,305 @@ methods are added to it, for example, *.values()* that returns an array containi
 	    System.out.printf("Your weight on %s is %f%n",
 	                      p, p.surfaceWeight(mass));
 	}
+Another example, note the use of `private final` to ensure constant filed.
+
+	public enum Suit { 
+	        DIAMONDS (1, "Diamonds"), 
+	        CLUBS    (2, "Clubs"   ), 
+	        HEARTS   (3, "Hearts"  ), 
+	        SPADES   (4, "Spades"  );
+        
+	        private final int value;
+	        private final String text;
+	        Suit(int value, String text) {
+	            this.value = value;
+	            this.text = text;
+	        }
+	        public int value() {return value;}
+	        public String text() {return text;}
+	    }
+
+
+### Annotations
+
+Annotations have a number of uses, among them:
+
+- Information for compiler: e.g. detect errors or suppress warnings.
+- Compile-time and deployment-time processing: Software tools can process annotation information to generate code, XML files, and so forth.
+- Runtime processing: Some annotations are available to be examined at runtime.
+
+
+###Interfaces
+
+Philosophy: There are a number of situations in software engineering when it is important for disparate groups of programmers to agree to a "contract" that spells out how their software interacts. Each group should be able to write their code without any knowledge of how the other group's code is written. Generally speaking, interfaces are such **contracts**. 
+
+In the Java programming language, an interface is a reference type, similar to a class, that can contain **only** **constants**, **method signatures**, **default methods**, **static methods**, and nested types. **Interfaces can not have fields**, that's what classes are for. Method bodies exist only for default methods and static methods. Interfaces cannot be instantiated—they can only be implemented by classes or extended by other interfaces.
+
+An interface can extend other interfaces, just as a class subclass or extend another class. However, whereas a class can extend only one other class, an interface can extend **any number of interfaces**. The interface declaration includes a comma-separated list of all the interfaces that it extends.  All abstract, default, and static methods in an interface are **implicitly public**, so you can omit the public modifier.
+
+**Interface Type**: If you define a reference variable whose type is an interface, any object you assign to it must be an instance of a class that implements the interface.
+
+	public Object findLargest(Object object1, Object object2) {
+	   Relatable obj1 = (Relatable)object1; // Type casting
+	   Relatable obj2 = (Relatable)object2;
+	   if ((obj1).isLargerThan(obj2) > 0)
+	      return object1;
+	   else 
+	      return object2;
+	}
+
+**Evolving Interfaces**: 
+
+When changing a interface (e.g. add another method signature), two ways to do that without breaking any classes that implements the interface.
+
+- Create a new interface that extends the old one: Now users of your code can choose to continue to use the old interface or to upgrade to the new interface.
+- Define the new methods as **default methods** or **static methods**.
+
+**Default Method**
+
+When extending an interface with default methods, one can do the following: 
+
+- Not mention the default method at all, which lets your extended interface inherit the default method.
+- Redeclare the default method, which makes it abstract. Then all classes that implement the new interface would have to implement that method.
+- Redefine the default method, which overrides it.
+
+The ability to modify the method makes it different with *static method*. (A static method is a method that is associated with the class in which it is defined rather than with any object. Every instance of the class shares its static methods.)
+
+###Inheritance
+
+**Private members in a Superclass**
+
+A subclass **does not** inherit the *private* members of its parent class.  However, if the superclass has public or protected methods for accessing those private fileds, these can be used.
+
+A **nested class** has access to all the private members of its enclosing class—both fields and methods. Therefore, a public or protected nested class inherited by a subclass has indirect access to all of the private members of the superclass.
+
+**Type Casting**
+
+This cast inserts a runtime check that obj is assigned a MountainBike so that the compiler can safely assume that obj is a MountainBike. If obj is not a MountainBike at runtime, an exception will be thrown.
+
+	if (obj instanceof MountainBike) {
+	    MountainBike myBike = (MountainBike)obj;
+	}
+
+**Multiple Inheritance of State, Implementation, and Type**
+
+- State: Java don't allow it, that is why one can't extend more than one class.
+- Implementation:  The ability to inherit method definitions from multiple classes. *Default methods* from different interfaces can have same name, and Java compiler determines which one goes first.
+- Type: An object can have multiple types: the type of its own class and the types of all the interfaces that the class implements.
+
+**Overriding and Hiding Methods**
+
+- Instance methods: An instance method in a subclass with the same signature (name, plus the number and the type of its parameters) and return type as an instance method in the superclass **overrides** the superclass's method. Be sure to use `@Override` annotation to instruct the compiler.
+
+- Static methods: If a subclass defines a static method with the same signature as a static method in the superclass, then the method in the subclass **hides** the one in the superclass.
+
+**Object as a Superclass**
+The Object class, in the java.lang package, sits at the top of the class hierarchy tree. Every class is a descendant, direct or indirect, of the Object class. Every class you use or write inherits the instance methods of Object. 
+
+Some notable methods in Object class are as follows:
+
+- The equals() Method: The equals() method provided in the Object class uses the identity operator (==) to determine whether two objects are equal. For primitive data types, this gives the correct result. For objects, however, it does not. The equals() method provided by Object tests whether the object references are equal—that is, if the objects compared are the exact same object.  Override this method if you want check customized equality for objects.
+
+- The getClass() Method: The getClass() method returns a Class object, which has methods you can use to get information about the class, such as its name (getSimpleName()), its superclass (getSuperclass()), and the interfaces it implements (getInterfaces()). For example, the following method gets and displays the class name of an object:
+
+	void printClassName(Object obj) {
+	    System.out.println("The object's" + " class is " +
+	        obj.getClass().getSimpleName());
+	}
+- The hashCode() Method: It returns the object's memory address in hexadecimal.  **Therefore, if you override the equals() method, you must also override the hashCode() method as well**.
+- The toString() Method: You should always consider overriding the toString() method in your classes.
+
+
+**Abstract Classes Vs Interfaces**
+An abstract class is a class that is declared *abstract*—it may or may not include abstract methods. Abstract classes cannot be instantiated, but they can be subclassed.  Abstract classes are similar to interfaces. You cannot instantiate them, and they may contain a mix of methods declared with or without an implementation. However, with abstract classes, you can declare fields that are not static and final, and define public, protected, and private concrete methods. With interfaces, all fields are automatically public, static, and final, and all methods that you declare or define (as default methods) are public. In addition, you can extend only one class, whether or not it is abstract, whereas you can implement any number of interfaces.
+
+Which one to use:
+
+- Consider using abstract classes if any of these statements apply to your situation:
+	- You want to share code among several closely related classes.	
+	- You expect that classes that extend your abstract class have many common methods or fields, or require access modifiers other than public (such as protected and private).
+	- You want to declare non-static or non-final fields. This enables you to define methods that can access and modify the state of the object to which they belong.
+- Consider using interfaces if any of these statements apply to your situation:
+	- You expect that unrelated classes would implement your interface. For example, the interfaces Comparable and Cloneable are implemented by many unrelated classes.
+	- You want to specify the behavior of a particular data type, but not concerned about who implements its behavior.
+	- You want to take advantage of multiple inheritance of type.
+	
+	
+**Autoboxing and Unboxing**
+Autoboxing is the automatic conversion that the Java compiler makes between the *primitive types* and their corresponding *object wrapper classes*. For example, converting an int to an Integer, a double to a Double, and so on. If the conversion goes the other way, this is called unboxing.
+
+	List<Integer> li = new ArrayList<>();
+	for (int i = 1; i < 50; i += 2)
+	    li.add(i);
+
+is actually being compiled to the following:
+
+	List<Integer> li = new ArrayList<>();
+	for (int i = 1; i < 50; i += 2)
+	    li.add(**Integer.valueOf(i)**);
+	
+Autoboxing happens when a primitive value is:
+
+- Passed as a parameter to a method that expects an object of the corresponding wrapper class.
+- Assigned to a variable of the corresponding wrapper class.
+
+Similarly, unboxing happens when an object of a wrapper class is:
+
+- Passed as a parameter to a method that expects a value of the corresponding primitive type.
+- Assigned to a variable of the corresponding primitive type.
+
+### Generics
+
+Benefits:
+
+- Stronger type checks at compile time
+- Elimination of casts
+- Enabling generic algorithms
+
+**Generic type**:A generic type is a generic class or interface that is parameterized over types. 
+
+ `class name<T1, T2, ..., Tn> { /* ... */ }`
+ 
+ You can also substitute a type parameter (i.e., K or V) with a **parameterized type** (i.e., List<String>). For example, using the OrderedPair<K, V> example:
+
+ `OrderedPair<String, **Box<Integer>**> p = new OrderedPair<>("primes", new Box<Integer>(...));`
+	 
+**Type parameter naming conventions**
+
+- E - Element (used extensively by the Java Collections Framework)
+- K - Key
+- N - Number
+- T - Type
+- V - Value
+- S,U,V etc. - 2nd, 3rd, 4th types
+
+**Generic methods**
+
+Example:
+`public static <K, V> boolean compare(Pair<K, V> p1, Pair<K, V> p2) {...}`
+`boolean same = Util.<Integer, String>compare(p1, p2);`
+
+
+**Bounded Type Parameters**
+**To restrict** the types that can be used as type arguments in a parameterized type.  This is called
+*bounded type parameter*.
+
+`public <U **extends** Number> void inspect(U u)`
+
+Type parameter `U` must be `Number` or subclasses of `Number`, hence the "extend".
+
+**Multiple Bounds**
+
+A type variable with multiple bounds is a subtype of all the types listed in the bound. If one of the bounds is a class, it must be specified first. For example:
+
+`class D <T extends A & B & C> { /* ... */ }`
+	
+A example, bounded type parameters is used to enforce that a generic type must implemented the interface Comparable, so that we can write .compreTo() in the generic method.
+
+	public static <T extends Comparable<T>> int countGreaterThan(T[] anArray, T elem) {
+	    int count = 0;
+	    for (T e : anArray)
+	        if (e.compareTo(elem) > 0)
+	            ++count;
+	    return count;
+	}
+
+**"is a" relation**
+
+	Object someObject = new Object();
+	Integer someInteger = new Integer(10);
+	someObject = someInteger;   // OK
+	
+In object-oriented terminology, this is called an "is a" relationship. Since an Integer is a kind of Object, the assignment is allowed.
+
+**Generic subtyping**
+
+The same is also true with generics. You can perform a generic type invocation, passing Number as its type argument, and any subsequent invocation of add will be allowed if the argument is compatible with Number:
+
+	Box<Number> box = new Box<Number>();
+	box.add(new Integer(10));   // OK
+	box.add(new Double(10.1));  // OK
+	
+Now consider the following method:
+
+`public void boxTest(Box<Number> n) { /* ... */ }`
+	
+ Are you allowed to pass in Box<Integer> or Box<Double>, as you might expect? **The answer is "no"**, because Box<Integer> and Box<Double> **are not subtypes** of Box<Number>.
+
+**Note: Given two concrete types A and B (for example, Number and Integer), `MyClass<A>` has no relationship to `MyClass<B>`, regardless of whether or not A and B are related. The common parent of `MyClass<A>` and `MyClass<B>` is Object.**
+
+You can subtype a generic class or interface by extending or implementing it. The relationship between the type parameters of one class or interface and the type parameters of another are determined by the extends and implements clauses.
+
+	interface PayloadList<E,P> extends List<E> {
+	  void setPayload(int index, P val);
+	  ...
+	}
+
+The following parameterizations of PayloadList are subtypes of `List<String>`:
+
+	PayloadList<String,String>
+	PayloadList<String,Integer>
+	PayloadList<String,Exception>
+	
+A better way to do is using upper bounded wildcard.  For example:
+
+	List<? extends Integer> intList = new ArrayList<>();
+	List<? extends Number>  numList = intList;  // OK. List<? extends Integer> is a subtype of List<? extends Number>
+
+Because Integer is a subtype of Number, and numList is a list of Number objects, a relationship now exists between intList (a list of Integer objects) and numList. The following diagram shows the relationships between several List classes declared with both upper and lower bounded wildcards.	
+
+
+<img src="pics/generic.png" width="400">
+
+
+**Type inference**
+
+The inference algorithm determines the types of the arguments and, if available, the type that the result is being assigned, or returned. Finally, the inference algorithm tries to find the most specific type that works with all of the arguments.  In the following example, inference determines that the second argument being passed to the pick method is of type *Serializable*:
+
+	static <T> T pick(T a1, T a2) { return a2; }
+	Serializable s = pick("d", new ArrayList<String>());
+
+Since both *String* and *ArrayList* are subtypes of *Serializable*.
+
+You can replace the type arguments required to invoke the constructor of a generic class with an empty set of type parameters (<>) as long as the compiler can infer the type arguments from the context. 
+You can substitute the parameterized type of the constructor with an empty set of type parameters (<>):
+
+`Map<String, List<String>> myMap = new HashMap<>();`
+	
+Note that to take advantage of type inference during generic class instantiation, you **must use the diamond**. In the following example, the compiler generates an unchecked conversion warning because the HashMap() constructor refers to the **HashMap raw type**, not the Map<String, List<String>> type:
+
+`Map<String, List<String>> myMap = new HashMap(); // unchecked conversion warning`
+	
+`Raw type` exists because of legacy issue.
+
+**Wild Cards**
+In generic code, the question mark (?), called the wildcard, represents an unknown type.
+
+**Upper bounded wildcards**
+
+You can use an upper bounded wildcard to relax the restrictions on a variable.
+
+To write the method that works on lists of Number and the subtypes of Number, such as Integer, Double, and Float, you would specify `List<? extends Number>`. The term `List<Number>` is more restrictive than `List<? extends Number>` because the former matches a list of type Number only, whereas the latter matches a list of type Number or any of its subclasses.
+	
+In scala, it is the same of writing `List[+Number]`.
+
+**Unbounded Wildcard**
+The unbounded wildcard type is specified using the wildcard character (?), for example, `List<?>`. This is called a list of unknown type. There are two scenarios where an unbounded wildcard is a useful approach:
+
+If you are writing a method that can be implemented using functionality provided in the Object class.
+When the code is using methods in the generic class that don't depend on the type parameter. For example, List.size or List.clear. In fact, `Class<?>` is so often used because most of the methods in `Class<T>` do not depend on T.
+
+**Lower Bounded wildcard**
+A lower bounded wildcard restricts the unknown type to be a specific type or a super type of that type.
+
+`public static void addNumbers(List<? super Integer> list) {..}`
+
+**Note**: You can specify an upper bound for a wildcard, or you can specify a lower bound, **but you cannot** specify both.
+
+
+
+
+
 
 
 
