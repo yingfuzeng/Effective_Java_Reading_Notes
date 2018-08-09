@@ -626,15 +626,77 @@ A lower bounded wildcard restricts the unknown type to be a specific type or a s
 **Note**: You can specify an upper bound for a wildcard, or you can specify a lower bound, **but you cannot** specify both.
 
 
+**Type Erasure**
+
+- Replace all type parameters in generic types with their bounds or Object if the type parameters are unbounded. The produced bytecode, therefore, contains only ordinary classes, interfaces, and methods.
+- Insert type casts if necessary to preserve type safety.
+- Generate bridge methods to preserve polymorphism in extended generic types.
+
+Type erasure ensures that no new classes are created for parameterized types; consequently, **generics incur no runtime overhead.**
+
+During the type erasure process, the Java compiler erases all type parameters and replaces each with its **first bound** if the type parameter is bounded, or **Object** if the type parameter is unbounded.
 
 
 
+**Package**
+A package is a grouping of related types providing access protection and name space management. The names of your types won't conflict with the type names in other packages because the package creates **a new namespace**.
+
+**Note:** If you put multiple types in a single source file, **only one can be public, and it must have the same name as the source file.** For example, you can define public class Circle in the file Circle.java, define public interface Draggable in the file Draggable.java, define public enum Day in the file Day.java, and so forth.
+
+*Naming Convention* Package names are written in all lower cases.  Companies use their reversed Internet domain name to begin their package names—for example, com.example.mypackage for a package named mypackage created by a programmer at example.com.
+
+**static import** When frequently need access to constants or static method of a class, use static import to 
+call the field name directly without the class name.
+
+`import static java.lang.Math.*;`
+
+Once they have been imported, the static members can be used without qualification. For example, the previous code snippet would become:
+
+`double r = cos(PI * theta);` // No need to say Math.cos
+
+##Java Collections
+
+**Basic operations**. *size, isEmpty, add, remove, iterator.*
+**Traversing Collections**
+
+1) Using aggregate operations, this is the **preferred method!**
+
+`myShapesCollection.stream()
+.filter(e -> e.getColor() == Color.RED)
+.forEach(e -> System.out.println(e.getName()));`
 
 
+Comparing to the old "bulk operations" (e.g. *containtsAll*, *addAll*), the new aggregate operations **do not modify the underlying collection** (functional programming yeah!). When using the new aggregate operations and lambda expressions, you must take care to avoid mutation so as not to introduce problems in the future, should your code be run later from a parallel stream.
 
+2) for-each construct
 
+`for (Object o : collection)
+    System.out.println(o);`
+	
+3) Iterators
 
+An Iterator is an object that enables you to traverse through a collection and to **remove elements** from the collection selectively.  Use Iterator instead of the for-each construct when you need to:
 
+- Remove the current element. The for-each construct hides the iterator, so you cannot call remove. Therefore, the for-each construct is not usable for filtering.
+- Iterate over multiple collections in parallel.
+
+**Set Interface**
+
+- HashSet: best-performing, no order guaranteed.
+- TreeSet: Stores its elements in a red-black tree (self balancing binary tree), order by values, much slower.
+- LinkedHashSet: Insertion-order, slightly slower than HashSet.
+
+**Collection to Set**
+
+`Collection<Type> noDups = new HashSet<Type>(c);`
+
+`Set<String> set = people.stream()
+.map(Person::getName)
+.collect(Collectors.toCollection(TreeSet::new));`
+
+**Note** that the code always refers to the Collection **by its interface type (Set) rather than by its implementation type.** This is a strongly recommended programming practice because it gives you the flexibility to change implementations merely by changing the constructor. If either of the variables used to store a collection or the parameters used to pass it around are declared to be of the Collection's implementation type rather than its interface type, all such variables and parameters must be changed in order to change its implementation type.
+
+*Basic operations*. *size, isEmpty, add, remove, iterator.*
 
 
 
